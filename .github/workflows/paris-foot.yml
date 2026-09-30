@@ -1,0 +1,60 @@
+name: paris-foot
+
+on:
+  schedule:
+    # Présélection : 00:05 heure de Paris. Deux horaires UTC pour l'heure d'été et l'heure d'hiver
+    # (le script ne s'exécute que s'il est bien minuit à Paris).
+    - cron: "5 22 * * *"
+    - cron: "5 23 * * *"
+    # Confirmation des compos : toutes les 15 min, de 10h à 23h59 (Paris, heure d'été)
+    - cron: "*/15 8-21 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "check, test, preselect ou confirm"
+        default: "test"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: paris-foot
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests
+
+      - name: Choisir le mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "*/15 8-21 * * *" ]; then
+            echo "mode=confirm" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=preselect" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Lancer le script
+        env:
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python paris_foot.py ${{ steps.mode.outputs.mode }}
+
+      - name: Sauvegarder l'état
+        if: always()
+        run: |
+          git config user.name "paris-foot-bot"
+          git config user.email "paris-foot-bot@users.noreply.github.com"
+          git add data 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "maj données" && git pull --rebase && git push)
