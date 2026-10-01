@@ -1,53 +1,80 @@
 #!/usr/bin/env python3
-"""Sonde Highlightly : appelle UN endpoint et affiche le début de la réponse.
+"""Sonde Highlightly : appelle UN endpoint et affiche une version compacte de la réponse.
 
-Sert à voir le vrai format des réponses avant d'écrire le script final.
 Variables d'environnement : HIGHLIGHTLY_KEY, PROBE_PATH, PROBE_PARAMS
-Chaque appel consomme au plus 1 requête du quota gratuit (100 par jour).
-La clé n'est jamais affichée : seulement sa longueur.
+Chaque appel consomme 1 requête du quota gratuit (100 par jour).
+La clé n'est jamais affichée.
 """
+import json
 import os
 import sys
 
 import requests
 
 BASE = "https://sports.highlightly.net"
-MAX_CHARS = 2500
+MAX_CHARS = 3000      # réponses qui ne sont pas des listes
+MAX_ITEMS = 30        # éléments affichés pour une liste
+LINE_CHARS = 280      # longueur max d'un élément affiché
 
-path = os.environ.get("PROBE_PATH", "").strip()
-if not path.startswith("/football/") or ".." in path:
-    sys.exit("Le chemin doit commencer par /football/ (ex. /football/matches).")
 
-params = {}
-for item in os.environ.get("PROBE_PARAMS", "").split():
-    if "=" in item:
-        k, v = item.split("=", 1)
-        params[k] = v
+def strip_logos(x):
+    """Retire les champs 'logo' (inutiles ici) pour raccourcir l'affichage."""
+    if isinstance(x, dict):
+        return {k: strip_logos(v) for k, v in x.items() if k != "logo"}
+    if isinstance(x, list):
+        return [strip_logos(v) for v in x]
+    return x
 
-key = os.environ.get("HIGHLIGHTLY_KEY", "").strip()
-print(f"Longueur de la clé lue dans le secret : {len(key)} caractères")
-if not key:
-    sys.exit("Le secret HIGHLIGHTLY_KEY est vide ou mal nommé.")
 
-# En-têtes d'authentification possibles : on essaie jusqu'à ce que l'un soit accepté.
-VARIANTS = [
-    ("x-rapidapi-key", {"x-rapidapi-key": key}),
-    ("x-api-key", {"x-api-key": key}),
-    ("Authorization: Bearer", {"Authorization": f"Bearer {key}"}),
-]
+def compact(x):
+    return json.dumps(strip_logos(x), ensure_ascii=False, separators=(",", ":"))
 
-print(f"URL : {BASE}{path}  params={params}")
-for label, headers in VARIANTS:
-    r = requests.get(BASE + path, params=params, headers=headers, timeout=30)
-    print(f"[{label}] -> statut HTTP {r.status_code}")
-    if r.status_code != 401:
-        break
 
-print(f"En-tête retenu : {label}")
-for name, value in r.headers.items():
-    if "limit" in name.lower() or "remaining" in name.lower():
-        print(f"{name}: {value}")
-print("--- Début de la réponse ---")
-print(r.text[:MAX_CHARS])
-if len(r.text) > MAX_CHARS:
-    print(f"\n[... coupé, {len(r.text)} caractères au total]")
+def show(text):
+    try:
+        js = json.loads(text)
+    except ValueError:
+        print(text[:MAX_CHARS])
+        return
+    if isinstance(js, dict) and isinstance(js.get("data"), list):
+        items = js["data"]
+        print(f"{len(items)} élément(s) dans data")
+        for it in items[:MAX_ITEMS]:
+            print(compact(it)[:LINE_CHARS])
+        if len(items) > MAX_ITEMS:
+            print(f"[... {len(items) - MAX_ITEMS} autres éléments non affichés]")
+        for k, v in js.items():
+            if k != "data":
+                print(f"{k} : {compact(v)[:300]}")
+    else:
+        out = compact(js)
+        print(out[:MAX_CHARS])
+        if len(out) > MAX_CHARS:
+            print(f"[... coupé, {len(out)} caractères au total]")
+
+
+def main():
+    path = os.environ.get("PROBE_PATH", "").strip()
+    if not path.startswith("/football/") or ".." in path:
+        sys.exit("Le chemin doit commencer par /football/ (ex. /football/matches).")
+    params = {}
+    for item in os.environ.get("PROBE_PARAMS", "").split():
+        if "=" in item:
+            k, v = item.split("=", 1)
+            params[k] = v
+    key = os.environ.get("HIGHLIGHTLY_KEY", "").strip()
+    if not key:
+        sys.exit("Le secret HIGHLIGHTLY_KEY est vide ou mal nommé.")
+
+    r = requests.get(BASE + path, params=params, timeout=30, headers={"x-rapidapi-key": key})
+    print(f"URL : {BASE}{path}  params={params}")
+    print(f"Statut HTTP : {r.status_code}")
+    for name, value in r.headers.items():
+        if "ratelimit-requests" in name.lower():
+            print(f"{name}: {value}")
+    print("--- Réponse ---")
+    show(r.text)
+
+
+if __name__ == "__main__":
+    main()
