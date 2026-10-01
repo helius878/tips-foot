@@ -145,16 +145,16 @@ def stake_fraction(p, odds):
     return min(STAKE_CAP, KELLY_FRACTION * edge / (odds - 1))
 
 
-def probs(pos, prof, home):
+def probs(pos, prof, home, opp_f=1.0):
     """Probabilités buteur / passeur / décisif pour un titulaire confirmé.
-    Taux par 90' ramenés vers une moyenne par poste ; pas de facteur adversaire (v1)."""
+    Taux par 90' ramenés vers une moyenne par poste, ajustés par la défense adverse et le lieu."""
     prior_g, prior_a = PRIORS.get(pos, (0.10, 0.08))
     n90 = prof["minutes"] / 90
     rg = (prof["goals"] + PRIOR_WEIGHT * prior_g) / (n90 + PRIOR_WEIGHT)
     ra = (prof["assists"] + PRIOR_WEIGHT * prior_a) / (n90 + PRIOR_WEIGHT)
     avg = prof["minutes"] / prof["apps"] if prof["apps"] > 0 else 0
     exp = min(90, max(avg, 70))
-    f = HOME if home else AWAY
+    f = opp_f * (HOME if home else AWAY)
     lg, la = rg * exp / 90 * f, ra * exp / 90 * f
     return {"buteur": 1 - math.exp(-lg), "passeur": 1 - math.exp(-la),
             "decisif": 1 - math.exp(-(lg + la))}
@@ -247,6 +247,56 @@ def valid_row(r):
     return (not re.search(r"\bU(1[5-9]|2[0-3])\b", txt)) and ("league" in kind or "cup" in kind)
 
 
+def season_year(day):
+    """Année de début de saison (2026 pour la saison 2026-2027)."""
+    y, m = int(day[:4]), int(day[5:7])
+    return y if m >= 7 else y - 1
+
+
+def league_table(api, cache, lid, today):
+    """Buts marqués/encaissés par équipe (1 requête par championnat et par jour)."""
+    store = cache.setdefault("standings", {})
+    e = store.get(str(lid))
+    if e and e["date"] == today:
+        return e["teams"]
+    try:
+        js = api.get("/football/standings", {"leagueId": lid, "season": season_year(today)},
+                     essential=False)
+    except (QuotaLow, requests.RequestException):
+        return e["teams"] if e else {}
+    teams = {}
+    for g in (js or {}).get("groups", []):
+        for t in g.get("standings", []):
+            tot = t.get("total") or {}
+            teams[str(t["team"]["id"])] = {"played": tot.get("games") or 0,
+                                           "gf": tot.get("scoredGoals") or 0,
+                                           "ga": tot.get("receivedGoals") or 0}
+    store[str(lid)] = {"date": today, "teams": teams}
+    return teams
+
+
+def opp_factor(teams, opp_id):
+    """Faiblesse défensive de l'adversaire vs moyenne du championnat (1.0 = moyenne)."""
+    tot_played = sum(t["played"] for t in teams.values())
+    tot_ga = sum(t["ga"] for t in teams.values())
+    o = teams.get(str(opp_id))
+    if not o or not tot_played or not o["played"] or tot_ga <= 0:
+        return 1.0
+    league_avg = tot_ga / tot_played
+    w = o["played"] / (o["played"] + 5)       # peu de matchs : on reste proche de 1.0
+    f = w * (o["ga"] / o["played"]) / league_avg + (1 - w)
+    return min(1.4, max(0.7, f))
+
+
+def defense_line(teams, fx):
+    parts = []
+    for side in ("home", "away"):
+        t = teams.get(str(fx[side]["id"]))
+        if t and t["played"]:
+            parts.append(f"{fx[side]['name']} {t['ga'] / t['played']:.1f}")
+    return ("Buts encaissés par match : " + " · ".join(parts)) if len(parts) == 2 else None
+
+
 def player_profile(api, cache, pid, labels):
     """Matchs, minutes, buts et passes décisives cumulés (saison en cours + saison passée pondérée)."""
     e = cache["players"].get(str(pid))
@@ -309,7 +359,7 @@ def run_confirm(api):
     now = datetime.now(TZ)
     today = now.strftime("%Y-%m-%d")
     state = ensure_day(api, today)
-    cache = load("cache.json", {"players": {}})
+    cache = load("cache.json", {"players": {}, "standings": {}})
     labels = season_labels(today)
     changed = False
     for fx in state["fixtures"]:
@@ -339,9 +389,11 @@ def run_confirm(api):
                          f"Ne joue que si tu as vu la compo toi-même.")
             continue
 
+        teams = league_table(api, cache, fx["league"], today)
         cands, missing = [], 0
         for side in ("home", "away"):
             team = js[f"{side}Team"]
+            opp_f = opp_factor(teams, fx["away" if side == "home" else "home"]["id"])
             for pl in attackers(team):
                 try:
                     prof = player_profile(api, cache, pl["id"], labels)
@@ -352,11 +404,14 @@ def run_confirm(api):
                     missing += 1
                     continue
                 cands.append({"id": pl["id"], "name": pl["name"], "team": fx[side]["name"],
-                              **probs(pl["position"], prof, side == "home")})
+                              **probs(pl["position"], prof, side == "home", opp_f)})
         save("cache.json", cache)
         picks = top_picks(cands)
         lines = [f"✅ Compos confirmées · {LEAGUES[fx['league']]} · {label}"]
         lines += [pick_line(p) for p in picks] or ["Aucun joueur ne passe les filtres avec ce onze."]
+        dl = defense_line(teams, fx)
+        if dl:
+            lines.append(dl)
         if missing:
             lines.append(f"⚠️ Stats indisponibles pour {missing} joueur(s) (quota API ou données manquantes).")
         lines.append("Cote min = cote à partir de laquelle le pari a "
