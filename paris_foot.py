@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
-"""paris-foot : paris simples sur joueurs (buteur, passeur, décisif), 100 % gratuit.
+"""paris-foot (Highlightly, version gratuite réduite).
+
+Paris simples sur joueurs : buteur, passeur, décisif (but ou passe).
+Championnats : Jupiler Pro League (Belgique) et Süper Lig (Turquie).
 
 Modes :
-  check       vérifie les IDs de championnats et ce que l'API couvre (5 requêtes)
   test        envoie un message de test sur Telegram
-  preselect   présélection du jour (à minuit, heure de Paris)
-  confirm     confirme avec les compos officielles (toutes les 15 min les jours de match)
+  programme   programme du jour à minuit (heure de Paris), sans analyse
+  confirm     toutes les 15 min : dès que la compo officielle est publiée, analyse du match
   mise P COTE BANKROLL   calcule la mise (ex. : mise 0.32 3.8 500)
 
-Secrets attendus (variables d'environnement) :
-  API_FOOTBALL_KEY, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
+Secrets attendus : HIGHLIGHTLY_KEY, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 """
 import argparse
 import csv
 import json
 import math
 import os
+import re
 import time
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -23,37 +25,35 @@ from zoneinfo import ZoneInfo
 import requests
 
 # ---------------------------------------------------------------- Configuration
-# IDs API-Football : à vérifier avec `python paris_foot.py check`
-LEAGUES = {172: "Bulgarie", 144: "Belgique", 210: "Croatie", 106: "Pologne", 203: "Turquie"}
-SEASON = 2026                 # saison 2026-2027 = année de début
+BASE = "https://sports.highlightly.net"
+LEAGUES = {123328: "Belgique", 173537: "Turquie"}   # identifiants Highlightly
 TZ = ZoneInfo("Europe/Paris")
 
 EDGE = 0.08                   # value minimale exigée (8 %)
 KELLY_FRACTION = 0.25         # quart de Kelly
 STAKE_CAP = 0.015             # mise max : 1,5 % de la bankroll
 
-MIN_APPS = 3                  # apparitions minimales cette saison
-MIN_MINUTES = 200             # minutes minimales cette saison
-MIN_START_RATE = 0.75         # part de matchs démarrés pour être « titulaire probable »
-MIN_AVG_MIN = 60              # minutes moyennes par apparition
+MAX_PER_TEAM = 5              # joueurs offensifs analysés par équipe (1 requête chacun)
 MIN_P = {"buteur": 0.20, "passeur": 0.15, "decisif": 0.30}   # probabilité minimale affichée
 TOP_PER_MARKET = 3            # joueurs affichés par marché et par match
 
 PRIOR_WEIGHT = 5              # poids (en matchs de 90') de la moyenne a priori
 PRIORS = {                    # (buts/90, passes décisives/90) a priori par poste
-    "Attacker": (0.40, 0.15),
+    "Forward": (0.40, 0.15),
     "Midfielder": (0.10, 0.12),
     "Defender": (0.04, 0.05),
     "Goalkeeper": (0.0, 0.0),
 }
 HOME, AWAY = 1.08, 0.92       # facteur domicile / extérieur
+PREV_SEASON_WEIGHT = 0.5      # poids de la saison passée (même championnat)
+PREV_OTHER_WEIGHT = 0.25      # poids de la saison passée (autre championnat)
 
-QUOTA_RESERVE = 25            # requêtes gardées pour les compos
-CALL_DELAY = 6.5              # secondes entre 2 requêtes (limite par minute du plan gratuit)
-CACHE_DAYS = 7                # durée de vie des stats joueurs en cache
+QUOTA_RESERVE = 8             # requêtes gardées pour les compos
+CALL_DELAY = 1.5              # secondes entre 2 requêtes
+CACHE_DAYS = 10               # durée de vie des stats joueurs en cache
 LINEUP_TRIES = [75, 50, 35, 20]   # minutes avant coup d'envoi des essais de compo
+BAD_STATES = ("finish", "postpon", "cancel", "abandon", "suspend")
 
-API = "https://v3.football.api-sports.io"
 DATA = "data"
 MARKETS = {"buteur": "Buteur", "passeur": "Passeur", "decisif": "Décisif (but ou passe)"}
 
@@ -62,7 +62,7 @@ class QuotaLow(Exception):
     pass
 
 
-# ---------------------------------------------------------------- API-Football
+# ---------------------------------------------------------------- API Highlightly
 class Api:
     def __init__(self, key):
         self.key = key
@@ -70,14 +70,15 @@ class Api:
         self.last_call = 0.0
 
     def get(self, path, params=None, essential=True):
+        """Renvoie le JSON, ou None si 404 (ex. compo pas encore publiée)."""
         if not essential and self.remaining is not None and self.remaining <= QUOTA_RESERVE:
             raise QuotaLow()
         wait = CALL_DELAY - (time.time() - self.last_call)
         if wait > 0:
             time.sleep(wait)
         for attempt in range(2):
-            r = requests.get(f"{API}/{path}", headers={"x-apisports-key": self.key},
-                             params=params, timeout=30)
+            r = requests.get(BASE + path, params=params or {}, timeout=30,
+                             headers={"x-rapidapi-key": self.key})
             self.last_call = time.time()
             rem = r.headers.get("x-ratelimit-requests-remaining")
             if rem is not None and rem.isdigit():
@@ -86,11 +87,10 @@ class Api:
                 time.sleep(65)
                 continue
             break
+        if r.status_code == 404:
+            return None
         r.raise_for_status()
-        data = r.json()
-        if data.get("errors"):
-            raise RuntimeError(f"API-Football /{path} : {data['errors']}")
-        return data
+        return r.json()
 
 
 # ---------------------------------------------------------------- Fichiers
@@ -145,51 +145,19 @@ def stake_fraction(p, odds):
     return min(STAKE_CAP, KELLY_FRACTION * edge / (odds - 1))
 
 
-def rates(p):
-    """Buts et passes décisives par 90', ramenés vers une moyenne par poste."""
-    prior_g, prior_a = PRIORS.get(p["pos"], (0.10, 0.08))
-    n90 = p["minutes"] / 90
-    return ((p["goals"] + PRIOR_WEIGHT * prior_g) / (n90 + PRIOR_WEIGHT),
-            (p["assists"] + PRIOR_WEIGHT * prior_a) / (n90 + PRIOR_WEIGHT))
-
-
-def opp_factor(teams, opp_id):
-    """Faiblesse défensive de l'adversaire vs moyenne du championnat (1.0 = moyenne)."""
-    tot_played = sum(t["played"] for t in teams.values())
-    tot_ga = sum(t["ga"] for t in teams.values())
-    o = teams.get(str(opp_id))
-    if not o or not tot_played or not o["played"] or tot_ga <= 0:
-        return 1.0
-    league_avg = tot_ga / tot_played
-    w = o["played"] / (o["played"] + 5)
-    f = w * (o["ga"] / o["played"]) / league_avg + (1 - w)
-    return min(1.4, max(0.7, f))
-
-
-def evaluate(players, opp_f, home, team_name, starters=None, injured=()):
-    """Probabilités par joueur. starters=None : titulaires probables ; sinon onze officiel."""
-    out = []
-    for pid, p in players.items():
-        if p["pos"] == "Goalkeeper" or pid in injured:
-            continue
-        avg = p["minutes"] / p["apps"] if p["apps"] else 0
-        if starters is not None:
-            if int(pid) not in starters:
-                continue
-            exp = min(90, max(avg, 70))
-        else:
-            if p["apps"] < MIN_APPS or p["minutes"] < MIN_MINUTES:
-                continue
-            if p["starts"] / p["apps"] < MIN_START_RATE or avg < MIN_AVG_MIN:
-                continue
-            exp = min(90, avg)
-        rg, ra = rates(p)
-        f = opp_f * (HOME if home else AWAY)
-        lg, la = rg * exp / 90 * f, ra * exp / 90 * f
-        out.append({"id": int(pid), "name": p["name"], "team": team_name,
-                    "buteur": 1 - math.exp(-lg), "passeur": 1 - math.exp(-la),
-                    "decisif": 1 - math.exp(-(lg + la))})
-    return out
+def probs(pos, prof, home):
+    """Probabilités buteur / passeur / décisif pour un titulaire confirmé.
+    Taux par 90' ramenés vers une moyenne par poste ; pas de facteur adversaire (v1)."""
+    prior_g, prior_a = PRIORS.get(pos, (0.10, 0.08))
+    n90 = prof["minutes"] / 90
+    rg = (prof["goals"] + PRIOR_WEIGHT * prior_g) / (n90 + PRIOR_WEIGHT)
+    ra = (prof["assists"] + PRIOR_WEIGHT * prior_a) / (n90 + PRIOR_WEIGHT)
+    avg = prof["minutes"] / prof["apps"] if prof["apps"] > 0 else 0
+    exp = min(90, max(avg, 70))
+    f = HOME if home else AWAY
+    lg, la = rg * exp / 90 * f, ra * exp / 90 * f
+    return {"buteur": 1 - math.exp(-lg), "passeur": 1 - math.exp(-la),
+            "decisif": 1 - math.exp(-(lg + la))}
 
 
 def top_picks(cands):
@@ -208,141 +176,141 @@ def pick_line(pk):
 
 
 # ---------------------------------------------------------------- Données
-def fetch_fixtures(api, day):
-    data = api.get("fixtures", {"date": day, "timezone": "Europe/Paris"})
-    out = []
-    for it in data["response"]:
-        if it["league"]["id"] not in LEAGUES or it["fixture"]["status"]["short"] not in ("NS", "TBD"):
-            continue
-        out.append({"id": it["fixture"]["id"], "league": it["league"]["id"],
-                    "ts": it["fixture"]["timestamp"],
-                    "home": {"id": it["teams"]["home"]["id"], "name": it["teams"]["home"]["name"]},
-                    "away": {"id": it["teams"]["away"]["id"], "name": it["teams"]["away"]["name"]}})
-    return sorted(out, key=lambda x: x["ts"])
-
-
-def league_table(api, cache, lid, today):
-    entry = cache["standings"].get(str(lid))
-    if entry and entry["date"] == today:
-        return entry["teams"]
-    data = api.get("standings", {"league": lid, "season": SEASON})
-    teams = {}
-    for resp in data["response"]:
-        for group in resp["league"]["standings"]:
-            for t in group:
-                a = t["all"]
-                teams[str(t["team"]["id"])] = {"played": a["played"], "gf": a["goals"]["for"],
-                                               "ga": a["goals"]["against"]}
-    cache["standings"][str(lid)] = {"date": today, "teams": teams}
-    return teams
-
-
-def fetch_injured(api, lid, today):
-    data = api.get("injuries", {"league": lid, "season": SEASON, "date": today}, essential=False)
-    return {str(it["player"]["id"]) for it in data["response"]}
-
-
-def team_players(api, cache, team_id):
-    entry = cache["teams"].get(str(team_id))
-    if entry and time.time() - entry["ts"] < CACHE_DAYS * 86400:
-        return entry["players"]
-    players, page = {}, 1
-    try:
-        while True:
-            data = api.get("players", {"team": team_id, "season": SEASON, "page": page}, essential=False)
-            for it in data["response"]:
-                agg = {"apps": 0, "starts": 0, "minutes": 0, "goals": 0, "assists": 0, "pos": None}
-                for s in it["statistics"]:
-                    if s["team"]["id"] != team_id:
-                        continue
-                    g = s["games"]
-                    agg["apps"] += g.get("appearences") or 0
-                    agg["starts"] += g.get("lineups") or 0
-                    agg["minutes"] += g.get("minutes") or 0
-                    agg["goals"] += s["goals"].get("total") or 0
-                    agg["assists"] += s["goals"].get("assists") or 0
-                    agg["pos"] = agg["pos"] or g.get("position")
-                players[str(it["player"]["id"])] = {"name": it["player"]["name"], **agg}
-            if page >= data["paging"]["total"]:
-                break
-            page += 1
-    except QuotaLow:
-        return entry["players"] if entry else None
-    cache["teams"][str(team_id)] = {"ts": time.time(), "players": players}
-    return players
+def parse_ts(s):
+    return datetime.fromisoformat(s.replace("Z", "+00:00")).timestamp()
 
 
 def hhmm(ts):
     return datetime.fromtimestamp(ts, TZ).strftime("%H:%M")
 
 
-# ---------------------------------------------------------------- Présélection
-def run_preselect(api, force):
+def season_labels(day):
+    """('26/27', '25/26') pour une date AAAA-MM-JJ."""
+    y, m = int(day[:4]), int(day[5:7])
+    start = y if m >= 7 else y - 1
+    return f"{start % 100:02d}/{(start + 1) % 100:02d}", f"{(start - 1) % 100:02d}/{start % 100:02d}"
+
+
+def fetch_fixtures(api, day):
+    out = []
+    for lid in LEAGUES:
+        js = api.get("/football/matches", {"leagueId": lid, "date": day})
+        for m in (js or {}).get("data", []):
+            if str((m.get("league") or {}).get("id")) != str(lid):
+                continue
+            desc = ((m.get("state") or {}).get("description") or "").lower()
+            if any(b in desc for b in BAD_STATES):
+                continue
+            ts = parse_ts(m["date"])
+            if datetime.fromtimestamp(ts, TZ).strftime("%Y-%m-%d") != day:
+                continue
+            out.append({"id": m["id"], "league": lid, "ts": ts,
+                        "home": {"id": m["homeTeam"]["id"], "name": m["homeTeam"]["name"]},
+                        "away": {"id": m["awayTeam"]["id"], "name": m["awayTeam"]["name"]}})
+    return sorted(out, key=lambda x: x["ts"])
+
+
+def ensure_day(api, today):
+    state = load("state.json", {})
+    if state.get("date") == today:
+        return state
+    state = {"date": today, "fixtures": fetch_fixtures(api, today), "tries": {},
+             "confirmed": [], "gaveup": []}
+    save("state.json", state)
+    return state
+
+
+def lineup_players(team):
+    """Joueurs du onze, du plus avancé au plus reculé (la dernière ligne = attaquants)."""
+    rows = (team or {}).get("initialLineup") or []
+    return [p for row in reversed(rows) for p in row]
+
+
+def lineup_ready(js):
+    return (isinstance(js, dict)
+            and len(lineup_players(js.get("homeTeam"))) >= 10
+            and len(lineup_players(js.get("awayTeam"))) >= 10)
+
+
+def attackers(team):
+    pool = [p for p in lineup_players(team) if p.get("position") in ("Forward", "Midfielder")]
+    return pool[:MAX_PER_TEAM]
+
+
+def base_league(name):
+    return (name or "").split(" Relegation")[0].split(" Play")[0].strip()
+
+
+def valid_row(r):
+    txt = f"{r.get('club', '')} {r.get('league', '')}"
+    kind = str(r.get("type", "")).lower()
+    return (not re.search(r"\bU(1[5-9]|2[0-3])\b", txt)) and ("league" in kind or "cup" in kind)
+
+
+def player_profile(api, cache, pid, labels):
+    """Matchs, minutes, buts et passes décisives cumulés (saison en cours + saison passée pondérée)."""
+    e = cache["players"].get(str(pid))
+    if e and time.time() - e["ts"] < CACHE_DAYS * 86400:
+        return e
+    try:
+        js = api.get(f"/football/players/{pid}/statistics", essential=False)
+    except QuotaLow:
+        return e
+    prof = js[0] if isinstance(js, list) and js else js
+    if not isinstance(prof, dict):
+        return e
+    cur_label, prev_label = labels
+    rows = [r for r in (prof.get("perCompetition") or []) if valid_row(r)]
+    cur = [r for r in rows if r.get("season") == cur_label]
+    prev = [r for r in rows if r.get("season") == prev_label]
+    cur_leagues = {base_league(r.get("league")) for r in cur}
+    agg = {"apps": 0.0, "minutes": 0.0, "goals": 0.0, "assists": 0.0}
+
+    def add(r, w):
+        agg["apps"] += w * (r.get("gamesPlayed") or 0)
+        agg["minutes"] += w * (r.get("minutesPlayed") or 0)
+        agg["goals"] += w * (r.get("goals") or 0)
+        agg["assists"] += w * (r.get("assists") or 0)
+
+    for r in cur:
+        add(r, 1.0)
+    for r in prev:
+        add(r, PREV_SEASON_WEIGHT if base_league(r.get("league")) in cur_leagues else PREV_OTHER_WEIGHT)
+    entry = {"ts": time.time(), "name": prof.get("name"), **agg}
+    cache["players"][str(pid)] = entry
+    return entry
+
+
+# ---------------------------------------------------------------- Programme du jour
+def run_programme(api, force):
     now = datetime.now(TZ)
     if now.hour != 0 and not force:
-        print("Ce n'est pas l'heure de la présélection (minuit, heure de Paris).")
+        print("Ce n'est pas l'heure du programme (minuit, heure de Paris).")
         return
     today = now.strftime("%Y-%m-%d")
-    cache = load("cache.json", {"teams": {}, "standings": {}})
     fixtures = fetch_fixtures(api, today)
-    state = {"date": today, "fixtures": fixtures, "pre": {}, "tries": {}, "confirmed": [], "gaveup": []}
+    save("state.json", {"date": today, "fixtures": fixtures, "tries": {},
+                        "confirmed": [], "gaveup": []})
     if not fixtures:
-        save("state.json", state)
-        telegram(f"Aucun match aujourd'hui ({today}) dans tes championnats.")
+        if force:
+            telegram(f"Aucun match aujourd'hui ({today}) dans tes championnats.")
         return
-
-    tables, injured, notes = {}, {}, []
-    for lid in sorted({f["league"] for f in fixtures}):
-        try:
-            tables[lid] = league_table(api, cache, lid, today)
-        except (RuntimeError, requests.RequestException) as e:
-            tables[lid] = {}
-            notes.append(f"classement {LEAGUES[lid]} indisponible ({e})")
-        try:
-            injured[lid] = fetch_injured(api, lid, today)
-        except (QuotaLow, RuntimeError, requests.RequestException):
-            injured[lid] = set()
-            notes.append(f"blessés {LEAGUES[lid]} non vérifiés")
-
-    msgs = [f"🌙 Présélection du {today} : {len(fixtures)} match(s).\n"
-            f"Cote min = cote à partir de laquelle le pari a {EDGE:.0%} de value selon le modèle. "
-            f"La mise indiquée vaut pour une cote égale à la cote min (plus la cote réelle est haute, "
-            f"plus la mise peut monter : commande « mise »). "
-            f"Compos à confirmer environ 1 h avant chaque match."]
-    for fx in fixtures:
-        lid = fx["league"]
-        lines = [f"⚽ {LEAGUES[lid]} · {fx['home']['name']} - {fx['away']['name']} ({hhmm(fx['ts'])})"]
-        cands = []
-        for side, other in (("home", "away"), ("away", "home")):
-            t = fx[side]
-            players = team_players(api, cache, t["id"])
-            if players is None:
-                lines.append(f"(stats indisponibles pour {t['name']} : quota API atteint)")
-                continue
-            cands += evaluate(players, opp_factor(tables[lid], fx[other]["id"]), side == "home",
-                              t["name"], injured=injured[lid])
-        picks = top_picks(cands)
-        state["pre"][str(fx["id"])] = [{"id": p["id"], "name": p["name"]} for p in picks]
-        lines += [pick_line(p) for p in picks] or ["Aucun joueur ne passe les filtres."]
-        msgs.append("\n".join(lines))
-    if notes:
-        msgs.append("⚠️ " + " ; ".join(notes))
+    lines = [f"🌙 Programme du {today} : {len(fixtures)} match(s)."]
+    lines += [f"• {hhmm(f['ts'])} {f['home']['name']} - {f['away']['name']} ({LEAGUES[f['league']]})"
+              for f in fixtures]
+    lines.append("L'analyse arrive environ 1 h avant chaque match, quand la compo officielle est publiée.")
     if api.remaining is not None:
-        msgs.append(f"Requêtes API restantes : {api.remaining}")
-    save("cache.json", cache)
-    save("state.json", state)
-    telegram("\n\n".join(msgs))
+        lines.append(f"Requêtes API restantes : {api.remaining}")
+    telegram("\n".join(lines))
 
 
 # ---------------------------------------------------------------- Confirmation
 def run_confirm(api):
-    state = load("state.json", {})
     now = datetime.now(TZ)
     today = now.strftime("%Y-%m-%d")
-    if state.get("date") != today:
-        print("Pas de présélection pour aujourd'hui.")
-        return
-    cache = load("cache.json", {"teams": {}, "standings": {}})
+    state = ensure_day(api, today)
+    cache = load("cache.json", {"players": {}})
+    labels = season_labels(today)
     changed = False
     for fx in state["fixtures"]:
         fid = str(fx["id"])
@@ -358,38 +326,41 @@ def run_confirm(api):
             continue
         label = f"{fx['home']['name']} - {fx['away']['name']} ({hhmm(fx['ts'])})"
         try:
-            lineups = api.get("fixtures/lineups", {"fixture": fx["id"]})["response"]
-        except (RuntimeError, requests.RequestException) as e:
+            js = api.get(f"/football/lineups/{fx['id']}")
+        except requests.RequestException as e:
             print(f"Compos {label} : {e}")
-            lineups = []
+            js = None
         state["tries"][fid] = tries + 1
         changed = True
-        ready = len(lineups) >= 2 and all(l.get("startXI") for l in lineups)
-        if not ready:
+        if not lineup_ready(js):
             if tries + 1 >= len(LINEUP_TRIES):
                 state["gaveup"].append(fx["id"])
                 telegram(f"⏳ {label} : compo non publiée à temps. "
                          f"Ne joue que si tu as vu la compo toi-même.")
             continue
 
-        xi = {l["team"]["id"]: {p["player"]["id"] for p in l["startXI"]} for l in lineups}
-        table = cache["standings"].get(str(fx["league"]), {}).get("teams", {})
-        cands = []
-        for side, other in (("home", "away"), ("away", "home")):
-            t = fx[side]
-            entry = cache["teams"].get(str(t["id"]))
-            if not entry or t["id"] not in xi:
-                continue
-            cands += evaluate(entry["players"], opp_factor(table, fx[other]["id"]), side == "home",
-                              t["name"], starters=xi[t["id"]])
+        cands, missing = [], 0
+        for side in ("home", "away"):
+            team = js[f"{side}Team"]
+            for pl in attackers(team):
+                try:
+                    prof = player_profile(api, cache, pl["id"], labels)
+                except requests.RequestException as e:
+                    print(f"Stats joueur {pl.get('name')} : {e}")
+                    prof = None
+                if not prof:
+                    missing += 1
+                    continue
+                cands.append({"id": pl["id"], "name": pl["name"], "team": fx[side]["name"],
+                              **probs(pl["position"], prof, side == "home")})
+        save("cache.json", cache)
         picks = top_picks(cands)
-        all_xi = set().union(*xi.values())
-        out = sorted({p["name"] for p in state["pre"].get(fid, []) if p["id"] not in all_xi})
-        lines = [f"✅ Compos confirmées · {label}"]
+        lines = [f"✅ Compos confirmées · {LEAGUES[fx['league']]} · {label}"]
         lines += [pick_line(p) for p in picks] or ["Aucun joueur ne passe les filtres avec ce onze."]
-        if out:
-            lines.append("❌ Présélectionnés mais hors du onze : " + ", ".join(out))
-        lines.append("Compare avec la cote de ton bookmaker : pas de pari si elle est sous la cote min.")
+        if missing:
+            lines.append(f"⚠️ Stats indisponibles pour {missing} joueur(s) (quota API ou données manquantes).")
+        lines.append("Cote min = cote à partir de laquelle le pari a "
+                     f"{EDGE:.0%} de value selon le modèle. Pas de pari si la cote de ton bookmaker est en dessous.")
         telegram("\n".join(lines))
         journal([[today, label, p["name"], p["market"], f"{p['p']:.3f}", f"{min_odds(p['p']):.2f}", "", ""]
                  for p in picks])
@@ -401,21 +372,6 @@ def run_confirm(api):
 
 
 # ---------------------------------------------------------------- Outils
-def run_check(api):
-    for lid, name in LEAGUES.items():
-        data = api.get("leagues", {"id": lid, "season": SEASON})
-        if not data["response"]:
-            print(f"{lid} ({name}) : aucune réponse pour la saison {SEASON}")
-            continue
-        r = data["response"][0]
-        cov = (r["seasons"][0].get("coverage") or {}) if r.get("seasons") else {}
-        fx = cov.get("fixtures") or {}
-        print(f"{lid} = {r['league']['name']} ({r['country']['name']}) | "
-              f"compos: {fx.get('lineups')} | stats joueurs: {cov.get('players')} | "
-              f"classement: {cov.get('standings')} | blessés: {cov.get('injuries')}")
-    print(f"Requêtes API restantes : {api.remaining}")
-
-
 def run_mise(p, odds, bankroll):
     edge = p * odds - 1
     f = stake_fraction(p, odds)
@@ -427,7 +383,7 @@ def run_mise(p, odds, bankroll):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("mode", choices=["check", "test", "preselect", "confirm", "mise"])
+    ap.add_argument("mode", choices=["test", "programme", "confirm", "mise"])
     ap.add_argument("args", nargs="*")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
@@ -438,10 +394,11 @@ def main():
     elif a.mode == "test":
         telegram("✅ Test paris-foot : le bot fonctionne.")
     else:
-        api = Api(os.environ["API_FOOTBALL_KEY"])
-        {"check": lambda: run_check(api),
-         "preselect": lambda: run_preselect(api, force),
-         "confirm": lambda: run_confirm(api)}[a.mode]()
+        api = Api(os.environ["HIGHLIGHTLY_KEY"].strip())
+        if a.mode == "programme":
+            run_programme(api, force)
+        else:
+            run_confirm(api)
 
 
 if __name__ == "__main__":
