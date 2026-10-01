@@ -1,0 +1,30 @@
+name: probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: "Chemin à interroger, ex. /football/matches"
+        default: "/football/matches"
+      params:
+        description: "Paramètres séparés par des espaces, ex. date=2026-09-20"
+        default: "date=2026-09-20"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests
+
+      - name: Appeler l'endpoint
+        env:
+          HIGHLIGHTLY_KEY: ${{ secrets.HIGHLIGHTLY_KEY }}
+          PROBE_PATH: ${{ github.event.inputs.path }}
+          PROBE_PARAMS: ${{ github.event.inputs.params }}
+        run: python probe.py
