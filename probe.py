@@ -3,7 +3,8 @@
 
 Sert à voir le vrai format des réponses avant d'écrire le script final.
 Variables d'environnement : HIGHLIGHTLY_KEY, PROBE_PATH, PROBE_PARAMS
-Chaque appel consomme 1 requête du quota gratuit (100 par jour).
+Chaque appel consomme au plus 1 requête du quota gratuit (100 par jour).
+La clé n'est jamais affichée : seulement sa longueur.
 """
 import os
 import sys
@@ -23,11 +24,26 @@ for item in os.environ.get("PROBE_PARAMS", "").split():
         k, v = item.split("=", 1)
         params[k] = v
 
-r = requests.get(BASE + path, params=params, timeout=30,
-                 headers={"x-rapidapi-key": os.environ["HIGHLIGHTLY_KEY"]})
+key = os.environ.get("HIGHLIGHTLY_KEY", "").strip()
+print(f"Longueur de la clé lue dans le secret : {len(key)} caractères")
+if not key:
+    sys.exit("Le secret HIGHLIGHTLY_KEY est vide ou mal nommé.")
+
+# En-têtes d'authentification possibles : on essaie jusqu'à ce que l'un soit accepté.
+VARIANTS = [
+    ("x-rapidapi-key", {"x-rapidapi-key": key}),
+    ("x-api-key", {"x-api-key": key}),
+    ("Authorization: Bearer", {"Authorization": f"Bearer {key}"}),
+]
 
 print(f"URL : {BASE}{path}  params={params}")
-print(f"Statut HTTP : {r.status_code}")
+for label, headers in VARIANTS:
+    r = requests.get(BASE + path, params=params, headers=headers, timeout=30)
+    print(f"[{label}] -> statut HTTP {r.status_code}")
+    if r.status_code != 401:
+        break
+
+print(f"En-tête retenu : {label}")
 for name, value in r.headers.items():
     if "limit" in name.lower() or "remaining" in name.lower():
         print(f"{name}: {value}")
