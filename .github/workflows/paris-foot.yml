@@ -2,7 +2,7 @@ name: paris-foot
 
 on:
   schedule:
-    # Présélection : 00:05 heure de Paris. Deux horaires UTC pour l'heure d'été et l'heure d'hiver
+    # Programme du jour : 00:05 heure de Paris. Deux horaires UTC pour l'heure d'été et l'heure d'hiver
     # (le script ne s'exécute que s'il est bien minuit à Paris).
     - cron: "5 22 * * *"
     - cron: "5 23 * * *"
@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "check, test, preselect ou confirm"
+        description: "test, programme ou confirm"
         default: "test"
 
 permissions:
@@ -41,12 +41,12 @@ jobs:
           elif [ "${{ github.event.schedule }}" = "*/15 8-21 * * *" ]; then
             echo "mode=confirm" >> "$GITHUB_OUTPUT"
           else
-            echo "mode=preselect" >> "$GITHUB_OUTPUT"
+            echo "mode=programme" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Lancer le script
         env:
-          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          HIGHLIGHTLY_KEY: ${{ secrets.HIGHLIGHTLY_KEY }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python paris_foot.py ${{ steps.mode.outputs.mode }}
