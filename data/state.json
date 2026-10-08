@@ -1,6 +1,33 @@
 {
- "date": "2026-10-08",
- "fixtures": [],
+ "date": "2026-10-09",
+ "fixtures": [
+  {
+   "id": 1348345608,
+   "league": 173537,
+   "ts": 1791565200.0,
+   "home": {
+    "id": 549679,
+    "name": "Galatasaray"
+   },
+   "away": {
+    "id": 855188,
+    "name": "Kasımpaşa"
+   }
+  },
+  {
+   "id": 1326406828,
+   "league": 123328,
+   "ts": 1791571500.0,
+   "home": {
+    "id": 628822,
+    "name": "Waasland-Beveren"
+   },
+   "away": {
+    "id": 221193,
+    "name": "Lommel United"
+   }
+  }
+ ],
  "tries": {},
  "confirmed": [],
  "gaveup": []
