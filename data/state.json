@@ -1,41 +1,112 @@
 {
- "date": "2026-10-09",
+ "date": "2026-10-10",
  "fixtures": [
   {
-   "id": 1348345608,
+   "id": 1348347310,
    "league": 173537,
-   "ts": 1791565200.0,
+   "ts": 1791628200.0,
    "home": {
-    "id": 549679,
-    "name": "Galatasaray"
+    "id": 849231,
+    "name": "Genclerbirligi"
    },
    "away": {
-    "id": 855188,
-    "name": "Kasımpaşa"
+    "id": 3046513,
+    "name": "Amed"
    }
   },
   {
-   "id": 1326406828,
-   "league": 123328,
-   "ts": 1791571500.0,
+   "id": 1348343055,
+   "league": 173537,
+   "ts": 1791637200.0,
    "home": {
-    "id": 628822,
-    "name": "Waasland-Beveren"
+    "id": 848380,
+    "name": "Alanyaspor"
    },
    "away": {
-    "id": 221193,
-    "name": "Lommel United"
+    "id": 859443,
+    "name": "Erzurum BB"
+   }
+  },
+  {
+   "id": 1348349863,
+   "league": 173537,
+   "ts": 1791637200.0,
+   "home": {
+    "id": 3066937,
+    "name": "Samsunspor"
+   },
+   "away": {
+    "id": 850082,
+    "name": "Trabzonspor"
+   }
+  },
+  {
+   "id": 1326407679,
+   "league": 123328,
+   "ts": 1791640800.0,
+   "home": {
+    "id": 631375,
+    "name": "Cercle Brugge"
+   },
+   "away": {
+    "id": 472238,
+    "name": "Anderlecht"
+   }
+  },
+  {
+   "id": 1348349012,
+   "league": 173537,
+   "ts": 1791648000.0,
+   "home": {
+    "id": 857741,
+    "name": "Rizespor"
+   },
+   "away": {
+    "id": 520745,
+    "name": "Fenerbahce"
+   }
+  },
+  {
+   "id": 1326410232,
+   "league": 123328,
+   "ts": 1791648900.0,
+   "home": {
+    "id": 5023386,
+    "name": "RAAL La Louvière"
+   },
+   "away": {
+    "id": 485003,
+    "name": "Club Brugge KV"
+   }
+  },
+  {
+   "id": 1326412785,
+   "league": 123328,
+   "ts": 1791657900.0,
+   "home": {
+    "id": 511384,
+    "name": "Zulte Waregem"
+   },
+   "away": {
+    "id": 537765,
+    "name": "Gent"
+   }
+  },
+  {
+   "id": 1326408530,
+   "league": 123328,
+   "ts": 1791657900.0,
+   "home": {
+    "id": 632226,
+    "name": "Genk"
+   },
+   "away": {
+    "id": 625418,
+    "name": "Kortrijk"
    }
   }
  ],
- "tries": {
-  "1348345608": 3,
-  "1326406828": 3
- },
- "confirmed": [
-  1348345608
- ],
- "gaveup": [
-  1326406828
- ]
+ "tries": {},
+ "confirmed": [],
+ "gaveup": []
 }
