@@ -239,6 +239,86 @@
    "minutes": 1087.0,
    "goals": 0.25,
    "assists": 0.75
+  },
+  "1773086": {
+   "ts": 1791647220.0146284,
+   "name": "Ali Sowe",
+   "apps": 23.25,
+   "minutes": 1722.75,
+   "goals": 6.5,
+   "assists": 2.0
+  },
+  "68096": {
+   "ts": 1791647221.7891831,
+   "name": "Ahmed Kutucu",
+   "apps": 12.75,
+   "minutes": 579.25,
+   "goals": 0.5,
+   "assists": 0.75
+  },
+  "3373587": {
+   "ts": 1791647223.54726,
+   "name": "Qazim Laci",
+   "apps": 23.25,
+   "minutes": 1889.5,
+   "goals": 4.5,
+   "assists": 4.5
+  },
+  "29083838": {
+   "ts": 1791647225.3064086,
+   "name": "Ibrahim Olawoyin",
+   "apps": 21.25,
+   "minutes": 1464.25,
+   "goals": 1.75,
+   "assists": 0.5
+  },
+  "26149452": {
+   "ts": 1791647227.0595362,
+   "name": "Adedire Mebude",
+   "apps": 13.5,
+   "minutes": 650.5,
+   "goals": 1.5,
+   "assists": 2.0
+  },
+  "8057882": {
+   "ts": 1791647228.8218236,
+   "name": "Vedat Muriqi",
+   "apps": 15.25,
+   "minutes": 1109.25,
+   "goals": 11.75,
+   "assists": 2.25
+  },
+  "23016553": {
+   "ts": 1791647230.574484,
+   "name": "Kerem Aktürkoğlu",
+   "apps": 21.5,
+   "minutes": 1397.0,
+   "goals": 4.25,
+   "assists": 5.0
+  },
+  "120260": {
+   "ts": 1791647232.331831,
+   "name": "Marco Asensio",
+   "apps": 15.5,
+   "minutes": 1146.25,
+   "goals": 7.0,
+   "assists": 6.75
+  },
+  "144571": {
+   "ts": 1791647234.1333735,
+   "name": "Mason Greenwood",
+   "apps": 15.25,
+   "minutes": 1176.5,
+   "goals": 9.75,
+   "assists": 4.5
+  },
+  "234248": {
+   "ts": 1791647235.9084163,
+   "name": "Mattéo Guendouzi",
+   "apps": 19.0,
+   "minutes": 1636.25,
+   "goals": 2.25,
+   "assists": 0.75
   }
  },
  "standings": {
