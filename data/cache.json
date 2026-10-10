@@ -79,21 +79,181 @@
    "minutes": 1521.0,
    "goals": 0.5,
    "assists": 0.5
+  },
+  "48685266": {
+   "ts": 1791635950.572691,
+   "name": "Ibrahim Kaya",
+   "apps": 21.75,
+   "minutes": 959.25,
+   "goals": 3.0,
+   "assists": 0.75
+  },
+  "45966620": {
+   "ts": 1791635952.2991395,
+   "name": "Iván Cédric",
+   "apps": 18.75,
+   "minutes": 1489.0,
+   "goals": 7.5,
+   "assists": 4.5
+  },
+  "468664": {
+   "ts": 1791635954.0559456,
+   "name": "Hwang Ui-Jo",
+   "apps": 23.75,
+   "minutes": 1555.25,
+   "goals": 2.0,
+   "assists": 3.0
+  },
+  "61888232": {
+   "ts": 1791635955.8143528,
+   "name": "Ruan Pereira Duarte",
+   "apps": 22.25,
+   "minutes": 1753.25,
+   "goals": 2.0,
+   "assists": 2.75
+  },
+  "59881206": {
+   "ts": 1791635957.564207,
+   "name": "Baran Ali Gezek",
+   "apps": 15.0,
+   "minutes": 1140.5,
+   "goals": 0.0,
+   "assists": 0.0
+  },
+  "8038079": {
+   "ts": 1791635959.2934656,
+   "name": "Eren Tozlu",
+   "apps": 15.75,
+   "minutes": 1192.5,
+   "goals": 8.0,
+   "assists": 1.75
+  },
+  "8639253": {
+   "ts": 1791635961.0103042,
+   "name": "Miguel Cardoso",
+   "apps": 21.25,
+   "minutes": 1621.25,
+   "goals": 2.0,
+   "assists": 3.25
+  },
+  "5784079": {
+   "ts": 1791635962.7542543,
+   "name": "Martín Rodríguez",
+   "apps": 14.5,
+   "minutes": 885.25,
+   "goals": 1.5,
+   "assists": 1.75
+  },
+  "3382764": {
+   "ts": 1791635964.5211573,
+   "name": "Elisha Owusu",
+   "apps": 12.25,
+   "minutes": 1005.25,
+   "goals": 0.0,
+   "assists": 0.0
+  },
+  "344694": {
+   "ts": 1791635966.3985772,
+   "name": "Mustafa Yumlu",
+   "apps": 11.75,
+   "minutes": 930.0,
+   "goals": 0.5,
+   "assists": 0.75
+  },
+  "3910522": {
+   "ts": 1791635969.943508,
+   "name": "Mohamed Bayo",
+   "apps": 0.0,
+   "minutes": 0.0,
+   "goals": 0.0,
+   "assists": 0.0
+  },
+  "8064805": {
+   "ts": 1791635971.6848128,
+   "name": "Emre Kılınç",
+   "apps": 14.25,
+   "minutes": 1148.75,
+   "goals": 1.5,
+   "assists": 3.5
+  },
+  "70435078": {
+   "ts": 1791635973.4037344,
+   "name": "Antoine Sekongo",
+   "apps": 14.5,
+   "minutes": 869.25,
+   "goals": 2.25,
+   "assists": 1.5
+  },
+  "18286695": {
+   "ts": 1791635975.150611,
+   "name": "Tanguy Coulibaly",
+   "apps": 8.75,
+   "minutes": 510.0,
+   "goals": 1.25,
+   "assists": 0.0
+  },
+  "3018743": {
+   "ts": 1791635976.895619,
+   "name": "Elliot Watt",
+   "apps": 13.5,
+   "minutes": 1125.5,
+   "goals": 1.5,
+   "assists": 0.75
+  },
+  "54840779": {
+   "ts": 1791635978.6276538,
+   "name": "Franculino Djú",
+   "apps": 17.0,
+   "minutes": 1057.5,
+   "goals": 10.5,
+   "assists": 2.5
+  },
+  "26048344": {
+   "ts": 1791635980.3606272,
+   "name": "Aral Şimşir",
+   "apps": 15.5,
+   "minutes": 961.25,
+   "goals": 2.25,
+   "assists": 5.25
+  },
+  "585872": {
+   "ts": 1791635982.1013463,
+   "name": "Ernest Muçi",
+   "apps": 20.75,
+   "minutes": 1414.0,
+   "goals": 7.5,
+   "assists": 5.25
+  },
+  "49420": {
+   "ts": 1791635983.8390357,
+   "name": "Mohamed Salah",
+   "apps": 13.75,
+   "minutes": 1096.75,
+   "goals": 9.25,
+   "assists": 4.0
+  },
+  "48293": {
+   "ts": 1791635985.5852292,
+   "name": "Fabinho",
+   "apps": 12.5,
+   "minutes": 1087.0,
+   "goals": 0.25,
+   "assists": 0.75
   }
  },
  "standings": {
   "173537": {
-   "date": "2026-10-09",
+   "date": "2026-10-10",
    "teams": {
+    "549679": {
+     "played": 7,
+     "gf": 16,
+     "ga": 11
+    },
     "3046513": {
      "played": 6,
      "gf": 15,
      "ga": 7
-    },
-    "549679": {
-     "played": 6,
-     "gf": 13,
-     "ga": 10
     },
     "467983": {
      "played": 6,
@@ -120,15 +280,15 @@
      "gf": 13,
      "ga": 5
     },
-    "855188": {
-     "played": 6,
-     "gf": 7,
-     "ga": 5
-    },
     "857741": {
      "played": 6,
      "gf": 7,
      "ga": 6
+    },
+    "855188": {
+     "played": 7,
+     "gf": 8,
+     "ga": 8
     },
     "3041407": {
      "played": 6,
