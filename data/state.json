@@ -1,131 +1,99 @@
 {
- "date": "2026-10-10",
+ "date": "2026-10-11",
  "fixtures": [
   {
-   "id": 1348347310,
+   "id": 1348348161,
    "league": 173537,
-   "ts": 1791628200.0,
+   "ts": 1791714600.0,
    "home": {
-    "id": 849231,
-    "name": "Genclerbirligi"
+    "id": 517341,
+    "name": "Konyaspor"
    },
    "away": {
-    "id": 3046513,
-    "name": "Amed"
+    "id": 480748,
+    "name": "İstanbul Başakşehir"
    }
   },
   {
-   "id": 1348343055,
+   "id": 1326411934,
+   "league": 123328,
+   "ts": 1791718200.0,
+   "home": {
+    "id": 624567,
+    "name": "Standard Liege"
+   },
+   "away": {
+    "id": 627120,
+    "name": "Charleroi"
+   }
+  },
+  {
+   "id": 1348346459,
    "league": 173537,
-   "ts": 1791637200.0,
+   "ts": 1791723600.0,
    "home": {
-    "id": 848380,
-    "name": "Alanyaspor"
+    "id": 3041407,
+    "name": "Gazişehir Gaziantep"
    },
    "away": {
-    "id": 859443,
-    "name": "Erzurum BB"
+    "id": 5398677,
+    "name": "Yeni Çorumspor"
    }
   },
   {
-   "id": 1348349863,
+   "id": 1326411083,
+   "league": 123328,
+   "ts": 1791727200.0,
+   "home": {
+    "id": 1186227,
+    "name": "Union Saint-Gilloise"
+   },
+   "away": {
+    "id": 222044,
+    "name": "OH Leuven"
+   }
+  },
+  {
+   "id": 1348343906,
    "league": 173537,
-   "ts": 1791637200.0,
+   "ts": 1791734400.0,
    "home": {
-    "id": 3066937,
-    "name": "Samsunspor"
+    "id": 467983,
+    "name": "Besiktas"
    },
    "away": {
-    "id": 850082,
-    "name": "Trabzonspor"
+    "id": 6307545,
+    "name": "Kocaelispor FK"
    }
   },
   {
-   "id": 1326407679,
+   "id": 1326413636,
    "league": 123328,
-   "ts": 1791640800.0,
+   "ts": 1791736200.0,
    "home": {
-    "id": 631375,
-    "name": "Cercle Brugge"
+    "id": 222895,
+    "name": "KVC Westerlo"
    },
    "away": {
-    "id": 472238,
-    "name": "Anderlecht"
+    "id": 630524,
+    "name": "Antwerp"
    }
   },
   {
-   "id": 1348349012,
-   "league": 173537,
-   "ts": 1791648000.0,
-   "home": {
-    "id": 857741,
-    "name": "Rizespor"
-   },
-   "away": {
-    "id": 520745,
-    "name": "Fenerbahce"
-   }
-  },
-  {
-   "id": 1326410232,
+   "id": 1326409381,
    "league": 123328,
-   "ts": 1791648900.0,
+   "ts": 1791738900.0,
    "home": {
-    "id": 5023386,
-    "name": "RAAL La Louvière"
+    "id": 227150,
+    "name": "KV Mechelen"
    },
    "away": {
-    "id": 485003,
-    "name": "Club Brugge KV"
-   }
-  },
-  {
-   "id": 1326412785,
-   "league": 123328,
-   "ts": 1791657900.0,
-   "home": {
-    "id": 511384,
-    "name": "Zulte Waregem"
-   },
-   "away": {
-    "id": 537765,
-    "name": "Gent"
-   }
-  },
-  {
-   "id": 1326408530,
-   "league": 123328,
-   "ts": 1791657900.0,
-   "home": {
-    "id": 632226,
-    "name": "Genk"
-   },
-   "away": {
-    "id": 625418,
-    "name": "Kortrijk"
+    "id": 626269,
+    "name": "St. Truiden"
    }
   }
  ],
- "tries": {
-  "1348347310": 3,
-  "1348343055": 3,
-  "1348349863": 3,
-  "1326407679": 4,
-  "1348349012": 4,
-  "1326410232": 4,
-  "1326412785": 3,
-  "1326408530": 3
- },
- "confirmed": [
-  1348343055,
-  1348349863,
-  1348349012
- ],
- "gaveup": [
-  1348347310,
-  1326407679,
-  1326410232,
-  1326412785,
-  1326408530
- ]
+ "tries": {},
+ "confirmed": [],
+ "gaveup": []
 }
