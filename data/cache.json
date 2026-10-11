@@ -639,6 +639,86 @@
    "minutes": 1115.25,
    "goals": 3.0,
    "assists": 1.5
+  },
+  "81765614": {
+   "ts": 1791738870.9868383,
+   "name": "Bouke Boersma",
+   "apps": 15.5,
+   "minutes": 1083.25,
+   "goals": 3.75,
+   "assists": 1.75
+  },
+  "46335471": {
+   "ts": 1791738872.7654195,
+   "name": "Myron Van Brederode",
+   "apps": 22.0,
+   "minutes": 1873.75,
+   "goals": 7.25,
+   "assists": 2.25
+  },
+  "4100341": {
+   "ts": 1791738874.6128778,
+   "name": "Benito Raman",
+   "apps": 19.0,
+   "minutes": 693.0,
+   "goals": 1.5,
+   "assists": 1.75
+  },
+  "52758566": {
+   "ts": 1791738876.399935,
+   "name": "Thérence Koudou",
+   "apps": 22.5,
+   "minutes": 1878.5,
+   "goals": 3.25,
+   "assists": 0.75
+  },
+  "105133798": {
+   "ts": 1791738878.1604426,
+   "name": "Marco Decherf",
+   "apps": 0.0,
+   "minutes": 0.0,
+   "goals": 0.0,
+   "assists": 0.0
+  },
+  "50614851": {
+   "ts": 1791738879.9908533,
+   "name": "Samed Baždar",
+   "apps": 11.25,
+   "minutes": 509.0,
+   "goals": 5.5,
+   "assists": 0.5
+  },
+  "55167126": {
+   "ts": 1791738881.7449927,
+   "name": "Ilias Sebaoui",
+   "apps": 25.0,
+   "minutes": 2102.25,
+   "goals": 3.25,
+   "assists": 5.25
+  },
+  "31873646": {
+   "ts": 1791738883.5205107,
+   "name": "Ryotaro Araki",
+   "apps": 5.0,
+   "minutes": 331.0,
+   "goals": 1.0,
+   "assists": 0.0
+  },
+  "66931235": {
+   "ts": 1791738885.2772522,
+   "name": "Kaito Matsuzawa",
+   "apps": 20.0,
+   "minutes": 587.0,
+   "goals": 2.0,
+   "assists": 2.5
+  },
+  "3355233": {
+   "ts": 1791738887.2975893,
+   "name": "Abdoulaye Sissako",
+   "apps": 24.75,
+   "minutes": 2074.75,
+   "goals": 0.75,
+   "assists": 2.5
   }
  },
  "standings": {
