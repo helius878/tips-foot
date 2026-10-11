@@ -559,6 +559,86 @@
    "minutes": 1340.0,
    "goals": 0.0,
    "assists": 1.0
+  },
+  "4896969": {
+   "ts": 1791734152.3264844,
+   "name": "Dušan Vlahović",
+   "apps": 8.75,
+   "minutes": 521.5,
+   "goals": 6.75,
+   "assists": 0.25
+  },
+  "313460": {
+   "ts": 1791734154.0560904,
+   "name": "Leandro Trossard",
+   "apps": 14.75,
+   "minutes": 957.75,
+   "goals": 2.75,
+   "assists": 2.5
+  },
+  "5982109": {
+   "ts": 1791734155.9334376,
+   "name": "Orkun Kökçü",
+   "apps": 22.5,
+   "minutes": 1839.25,
+   "goals": 5.5,
+   "assists": 7.0
+  },
+  "29271242": {
+   "ts": 1791734157.625341,
+   "name": "Fabio Miretti",
+   "apps": 13.75,
+   "minutes": 379.0,
+   "goals": 0.5,
+   "assists": 1.0
+  },
+  "88543": {
+   "ts": 1791734159.301777,
+   "name": "Václav Černý",
+   "apps": 22.75,
+   "minutes": 1512.25,
+   "goals": 5.25,
+   "assists": 4.0
+  },
+  "14134505": {
+   "ts": 1791734160.9843168,
+   "name": "Dan Agyei",
+   "apps": 22.5,
+   "minutes": 1495.25,
+   "goals": 3.5,
+   "assists": 0.0
+  },
+  "10011295": {
+   "ts": 1791734162.738093,
+   "name": "Metehan Altunbaş",
+   "apps": 16.0,
+   "minutes": 717.75,
+   "goals": 4.75,
+   "assists": 0.75
+  },
+  "64488704": {
+   "ts": 1791734164.4166605,
+   "name": "Gonçalo Sousa",
+   "apps": 22.0,
+   "minutes": 1502.5,
+   "goals": 3.0,
+   "assists": 5.5
+  },
+  "52823771": {
+   "ts": 1791734166.1119297,
+   "name": "Mahamadou Susoho",
+   "apps": 14.25,
+   "minutes": 917.5,
+   "goals": 0.25,
+   "assists": 0.0
+  },
+  "42605101": {
+   "ts": 1791734167.8241773,
+   "name": "Berkan Kutlu",
+   "apps": 17.0,
+   "minutes": 1115.25,
+   "goals": 3.0,
+   "assists": 1.5
   }
  },
  "standings": {
