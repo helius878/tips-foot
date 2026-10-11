@@ -1,116 +1,21 @@
 {
- "date": "2026-10-11",
+ "date": "2026-10-12",
  "fixtures": [
   {
-   "id": 1348348161,
+   "id": 1348344757,
    "league": 173537,
-   "ts": 1791714600.0,
+   "ts": 1791824400.0,
    "home": {
-    "id": 517341,
-    "name": "Konyaspor"
+    "id": 3054172,
+    "name": "Eyüpspor"
    },
    "away": {
-    "id": 480748,
-    "name": "İstanbul Başakşehir"
-   }
-  },
-  {
-   "id": 1326411934,
-   "league": 123328,
-   "ts": 1791718200.0,
-   "home": {
-    "id": 624567,
-    "name": "Standard Liege"
-   },
-   "away": {
-    "id": 627120,
-    "name": "Charleroi"
-   }
-  },
-  {
-   "id": 1348346459,
-   "league": 173537,
-   "ts": 1791723600.0,
-   "home": {
-    "id": 3041407,
-    "name": "Gazişehir Gaziantep"
-   },
-   "away": {
-    "id": 5398677,
-    "name": "Yeni Çorumspor"
-   }
-  },
-  {
-   "id": 1326411083,
-   "league": 123328,
-   "ts": 1791727200.0,
-   "home": {
-    "id": 1186227,
-    "name": "Union Saint-Gilloise"
-   },
-   "away": {
-    "id": 222044,
-    "name": "OH Leuven"
-   }
-  },
-  {
-   "id": 1348343906,
-   "league": 173537,
-   "ts": 1791734400.0,
-   "home": {
-    "id": 467983,
-    "name": "Besiktas"
-   },
-   "away": {
-    "id": 6307545,
-    "name": "Kocaelispor FK"
-   }
-  },
-  {
-   "id": 1326413636,
-   "league": 123328,
-   "ts": 1791736200.0,
-   "home": {
-    "id": 222895,
-    "name": "KVC Westerlo"
-   },
-   "away": {
-    "id": 630524,
-    "name": "Antwerp"
-   }
-  },
-  {
-   "id": 1326409381,
-   "league": 123328,
-   "ts": 1791738900.0,
-   "home": {
-    "id": 227150,
-    "name": "KV Mechelen"
-   },
-   "away": {
-    "id": 626269,
-    "name": "St. Truiden"
+    "id": 846678,
+    "name": "Goztepe"
    }
   }
  ],
- "tries": {
-  "1348348161": 4,
-  "1326411934": 4,
-  "1348346459": 3,
-  "1326411083": 4,
-  "1348343906": 4,
-  "1326413636": 3,
-  "1326409381": 4
- },
- "confirmed": [
-  1348348161,
-  1326411934,
-  1348346459,
-  1348343906,
-  1326409381
- ],
- "gaveup": [
-  1326411083,
-  1326413636
- ]
+ "tries": {},
+ "confirmed": [],
+ "gaveup": []
 }
