@@ -399,6 +399,86 @@
    "minutes": 1659.5,
    "goals": 0.0,
    "assists": 1.5
+  },
+  "55214299": {
+   "ts": 1791717376.2797008,
+   "name": "Adnane Abid",
+   "apps": 21.75,
+   "minutes": 1509.0,
+   "goals": 4.0,
+   "assists": 4.5
+  },
+  "6100766": {
+   "ts": 1791717378.033646,
+   "name": "Dennis Eckert Ayensa",
+   "apps": 23.0,
+   "minutes": 1398.25,
+   "goals": 6.5,
+   "assists": 1.0
+  },
+  "81096176": {
+   "ts": 1791717379.7466164,
+   "name": "Bernard Nguene",
+   "apps": 14.0,
+   "minutes": 599.5,
+   "goals": 1.25,
+   "assists": 2.0
+  },
+  "53637304": {
+   "ts": 1791717381.4554508,
+   "name": "Rayan Touzghar",
+   "apps": 15.75,
+   "minutes": 1135.0,
+   "goals": 0.75,
+   "assists": 0.75
+  },
+  "31245907": {
+   "ts": 1791717383.1752481,
+   "name": "Alexis Trouillet",
+   "apps": 12.75,
+   "minutes": 875.75,
+   "goals": 0.0,
+   "assists": 0.25
+  },
+  "3338167": {
+   "ts": 1791717384.9271646,
+   "name": "Aurélien Scheidler",
+   "apps": 24.75,
+   "minutes": 2042.0,
+   "goals": 7.25,
+   "assists": 2.75
+  },
+  "54124651": {
+   "ts": 1791717386.7779055,
+   "name": "Freddy Mbemba",
+   "apps": 14.25,
+   "minutes": 587.75,
+   "goals": 3.25,
+   "assists": 0.0
+  },
+  "51194773": {
+   "ts": 1791717388.5044425,
+   "name": "Jakob Napoleon Romsaas",
+   "apps": 24.5,
+   "minutes": 1396.5,
+   "goals": 1.75,
+   "assists": 5.0
+  },
+  "4266171": {
+   "ts": 1791717390.2285995,
+   "name": "Patrick Pflücke",
+   "apps": 26.25,
+   "minutes": 1738.0,
+   "goals": 2.75,
+   "assists": 6.0
+  },
+  "63174300": {
+   "ts": 1791717391.9606466,
+   "name": "Yassine Khalifi",
+   "apps": 15.0,
+   "minutes": 855.25,
+   "goals": 0.25,
+   "assists": 0.5
   }
  },
  "standings": {
@@ -494,6 +574,101 @@
      "played": 6,
      "gf": 2,
      "ga": 16
+    }
+   }
+  },
+  "123328": {
+   "date": "2026-10-11",
+   "teams": {
+    "537765": {
+     "played": 8,
+     "gf": 15,
+     "ga": 4
+    },
+    "485003": {
+     "played": 8,
+     "gf": 19,
+     "ga": 4
+    },
+    "1186227": {
+     "played": 7,
+     "gf": 21,
+     "ga": 3
+    },
+    "627120": {
+     "played": 7,
+     "gf": 15,
+     "ga": 7
+    },
+    "472238": {
+     "played": 8,
+     "gf": 9,
+     "ga": 6
+    },
+    "632226": {
+     "played": 8,
+     "gf": 16,
+     "ga": 12
+    },
+    "624567": {
+     "played": 7,
+     "gf": 13,
+     "ga": 12
+    },
+    "511384": {
+     "played": 8,
+     "gf": 10,
+     "ga": 9
+    },
+    "221193": {
+     "played": 8,
+     "gf": 9,
+     "ga": 9
+    },
+    "222895": {
+     "played": 7,
+     "gf": 15,
+     "ga": 16
+    },
+    "628822": {
+     "played": 8,
+     "gf": 8,
+     "ga": 14
+    },
+    "626269": {
+     "played": 7,
+     "gf": 12,
+     "ga": 12
+    },
+    "630524": {
+     "played": 7,
+     "gf": 11,
+     "ga": 15
+    },
+    "222044": {
+     "played": 7,
+     "gf": 5,
+     "ga": 13
+    },
+    "5023386": {
+     "played": 8,
+     "gf": 8,
+     "ga": 18
+    },
+    "625418": {
+     "played": 8,
+     "gf": 2,
+     "ga": 18
+    },
+    "631375": {
+     "played": 8,
+     "gf": 9,
+     "ga": 16
+    },
+    "227150": {
+     "played": 7,
+     "gf": 5,
+     "ga": 14
     }
    }
   }
