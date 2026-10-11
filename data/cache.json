@@ -479,6 +479,86 @@
    "minutes": 855.25,
    "goals": 0.25,
    "assists": 0.5
+  },
+  "6027994": {
+   "ts": 1791722984.418051,
+   "name": "Halil Dervişoğlu",
+   "apps": 15.75,
+   "minutes": 716.25,
+   "goals": 2.5,
+   "assists": 0.0
+  },
+  "10353098": {
+   "ts": 1791722986.1601312,
+   "name": "Kacper Kozłowski",
+   "apps": 0.0,
+   "minutes": 0.0,
+   "goals": 0.0,
+   "assists": 0.0
+  },
+  "4173435": {
+   "ts": 1791722987.9061325,
+   "name": "Alexandru Maxim",
+   "apps": 0.0,
+   "minutes": 0.0,
+   "goals": 0.0,
+   "assists": 0.0
+  },
+  "72639812": {
+   "ts": 1791722989.6646779,
+   "name": "Gidado Victor Ntino-Emo",
+   "apps": 17.0,
+   "minutes": 1029.25,
+   "goals": 0.25,
+   "assists": 1.75
+  },
+  "6954388": {
+   "ts": 1791722991.4109035,
+   "name": "Deian Sorescu",
+   "apps": 0.0,
+   "minutes": 0.0,
+   "goals": 0.0,
+   "assists": 0.0
+  },
+  "16737392": {
+   "ts": 1791722993.1764991,
+   "name": "Jesús Ramírez",
+   "apps": 14.5,
+   "minutes": 1248.0,
+   "goals": 8.75,
+   "assists": 1.0
+  },
+  "10982447": {
+   "ts": 1791722995.1441138,
+   "name": "Alexandros Kyziridis",
+   "apps": 22.75,
+   "minutes": 1727.5,
+   "goals": 5.5,
+   "assists": 6.75
+  },
+  "32141872": {
+   "ts": 1791722996.9093788,
+   "name": "Mohammed Diomande",
+   "apps": 23.25,
+   "minutes": 1343.75,
+   "goals": 1.5,
+   "assists": 2.75
+  },
+  "126539": {
+   "ts": 1791722998.6868367,
+   "name": "Cengiz Ünder",
+   "apps": 18.25,
+   "minutes": 848.5,
+   "goals": 4.5,
+   "assists": 2.75
+  },
+  "10007592": {
+   "ts": 1791723000.516519,
+   "name": "Gökhan Sazdağı",
+   "apps": 16.25,
+   "minutes": 1340.0,
+   "goals": 0.0,
+   "assists": 1.0
   }
  },
  "standings": {
