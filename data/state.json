@@ -1,25 +1,7 @@
 {
- "date": "2026-10-12",
- "fixtures": [
-  {
-   "id": 1348344757,
-   "league": 173537,
-   "ts": 1791824400.0,
-   "home": {
-    "id": 3054172,
-    "name": "Eyüpspor"
-   },
-   "away": {
-    "id": 846678,
-    "name": "Goztepe"
-   }
-  }
- ],
- "tries": {
-  "1348344757": 2
- },
- "confirmed": [
-  1348344757
- ],
+ "date": "2026-10-13",
+ "fixtures": [],
+ "tries": {},
+ "confirmed": [],
  "gaveup": []
 }
